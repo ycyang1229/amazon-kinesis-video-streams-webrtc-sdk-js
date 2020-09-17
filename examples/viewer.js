@@ -128,14 +128,14 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
         console.log('[VIEWER] Creating SDP offer');
         await viewer.peerConnection.setLocalDescription(
             await viewer.peerConnection.createOffer({
-                offerToReceiveAudio: true,
+                //offerToReceiveAudio: true,
                 offerToReceiveVideo: true,
             }),
         );
 
         // When trickle ICE is enabled, send the offer now and then send ICE candidates as they are generated. Otherwise wait on the ICE candidates.
         if (formValues.useTrickleICE) {
-            console.log('[VIEWER] Sending SDP offer');
+            console.log('[VIEWER] Sending SDP offer', viewer.peerConnection.localDescription);
             viewer.signalingClient.sendSdpOffer(viewer.peerConnection.localDescription);
         }
         console.log('[VIEWER] Generating ICE candidates');
@@ -143,13 +143,13 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
 
     viewer.signalingClient.on('sdpAnswer', async answer => {
         // Add the SDP answer to the peer connection
-        console.log('[VIEWER] Received SDP answer');
+        console.log('[VIEWER] Received SDP answer', answer);
         await viewer.peerConnection.setRemoteDescription(answer);
     });
 
     viewer.signalingClient.on('iceCandidate', candidate => {
         // Add the ICE candidate received from the MASTER to the peer connection
-        console.log('[VIEWER] Received ICE candidate');
+        console.log('[VIEWER] Received ICE candidate', candidate);
         viewer.peerConnection.addIceCandidate(candidate);
     });
 
@@ -168,7 +168,7 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
 
             // When trickle ICE is enabled, send the ICE candidates as they are generated.
             if (formValues.useTrickleICE) {
-                console.log('[VIEWER] Sending ICE candidate');
+                console.log('[VIEWER] Sending ICE candidate', candidate);
                 viewer.signalingClient.sendIceCandidate(candidate);
             }
         } else {
@@ -176,7 +176,7 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
 
             // When trickle ICE is disabled, send the offer now that all the ICE candidates have ben generated.
             if (!formValues.useTrickleICE) {
-                console.log('[VIEWER] Sending SDP offer');
+                console.log('[VIEWER] Sending SDP offer', viewer.peerConnection.localDescription);
                 viewer.signalingClient.sendSdpOffer(viewer.peerConnection.localDescription);
             }
         }
