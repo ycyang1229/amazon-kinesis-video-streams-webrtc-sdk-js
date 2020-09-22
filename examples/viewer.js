@@ -129,7 +129,7 @@ async function startViewer(localView, remoteView, formValues, onStatsReport, onR
         await viewer.peerConnection.setLocalDescription(
             await viewer.peerConnection.createOffer({
                 //offerToReceiveAudio: true,
-                offerToReceiveVideo: true,
+                //offerToReceiveVideo: true,
             }),
         );
 
